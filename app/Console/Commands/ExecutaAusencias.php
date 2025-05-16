@@ -27,7 +27,7 @@ class ExecutaAusencias extends Command
         Log::info("{$key} - Início " . static::class);
 
         $commands = [
-            \App\Console\Commands\InsertAusencia::class,
+            Intermediary\Insert\InsertAusencia::class,
             function() {
                 $this->call('nexti-sync', ['folder' => 'absence']);
             },
