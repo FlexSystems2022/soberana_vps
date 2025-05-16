@@ -82,7 +82,7 @@ class BuscaAusencia extends CommandNexti
      **/
     protected function buscaMaxLastUpdate(): Carbon
     {
-        $found = DB::table('NEXTI_RET_AUSENCIAS')
+        $found = DB::table('nexti_ret_ausencias')
                     ->selectRaw('MAX(LASTUPDATE) as LASTUPDATE')
                     ->first();
 
@@ -126,11 +126,11 @@ class BuscaAusencia extends CommandNexti
             'TIPO' => $removed ? 3 : 0
         ];
 
-        $model = DB::table('NEXTI_RET_AUSENCIAS')->where('ID', $data['ID']);
+        $model = DB::table('nexti_ret_ausencias')->where('ID', $data['ID']);
 
         $found = $model->first();
         if(!$found) {
-            DB::table('NEXTI_RET_AUSENCIAS')->insert($data);
+            DB::table('nexti_ret_ausencias')->insert($data);
 
             $this->info("Criado {$data['ID']}");
 

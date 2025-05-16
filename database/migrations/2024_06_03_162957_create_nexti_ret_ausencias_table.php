@@ -37,7 +37,7 @@ return new class extends Migration
             $table->text('OBSERVACAO')->nullable();
 
             $table->index(
-                name: 'NEXTI_RET_AUSENCIAS_INDEX',
+                name: 'nexti_ret_ausencias_index',
                 columns: [
                     'PERSONEXTERNALID',
                     'FINISHDATETIME',

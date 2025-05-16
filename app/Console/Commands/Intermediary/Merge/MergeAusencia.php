@@ -35,7 +35,7 @@ class MergeAusencia extends Command
                         ->get();
 		
         foreach ($ausencias as $ausencia) {
-            $found = DB::table('NEXTI_RET_AUSENCIAS')
+            $found = DB::table('nexti_ret_ausencias')
                             ->select('ID')
                             ->where('PERSONEXTERNALID', $ausencia->people->IDEXTERNO)
                             ->when($ausencia->FINISHDATETIME,
@@ -60,7 +60,7 @@ class MergeAusencia extends Command
                 'OBSERVACAO' => date('d/m/Y H:i:s') . ' - Registro Já Processado na Nexti (recuperaId)'
             ]);
 
-            DB::table('NEXTI_RET_AUSENCIAS')
+            DB::table('nexti_ret_ausencias')
                 ->where('ID', $found->ID)
                 ->update([
                     'SITUACAO' => 1,
