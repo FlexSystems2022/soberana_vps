@@ -15,7 +15,7 @@ class People extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_COLABORADOR';
+    protected $table = 'nexti_colaborador';
 
     /**
      * The primary key for the model.

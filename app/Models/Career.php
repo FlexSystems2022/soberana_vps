@@ -11,7 +11,7 @@ class Career extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_CARGO';
+    protected $table = 'nexti_cargo';
 
     /**
      * The primary key for the model.

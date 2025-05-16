@@ -11,7 +11,7 @@ class Shift extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_HORARIO';
+    protected $table = 'nexti_horario';
 
     /**
      * The primary key for the model.

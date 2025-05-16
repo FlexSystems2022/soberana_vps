@@ -11,7 +11,7 @@ class Client extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_CLIENTE';
+    protected $table = 'nexti_cliente';
 
     /**
      * The primary key for the model.

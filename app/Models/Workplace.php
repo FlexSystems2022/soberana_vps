@@ -11,7 +11,7 @@ class Workplace extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_POSTO';
+    protected $table = 'nexti_posto';
 
     /**
      * The primary key for the model.

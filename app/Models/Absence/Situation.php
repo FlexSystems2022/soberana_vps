@@ -11,7 +11,7 @@ class Situation extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_SITUACAO';
+    protected $table = 'nexti_situacao';
 
     /**
      * The primary key for the model.

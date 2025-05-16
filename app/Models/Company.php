@@ -11,7 +11,7 @@ class Company extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_EMPRESA';
+    protected $table = 'nexti_empresa';
 
     /**
      * The primary key for the model.

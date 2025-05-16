@@ -13,7 +13,7 @@ class Absence extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_AUSENCIAS_ALTERDATA';
+    protected $table = 'nexti_ausencias_alterdata';
 
     /**
      * The primary key for the model.

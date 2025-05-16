@@ -11,7 +11,7 @@ class Union extends NextiModel
      *
      * @var string
      */
-    protected $table = 'NEXTI_SINDICATO';
+    protected $table = 'nexti_sindicato';
 
     /**
      * The primary key for the model.

@@ -19,7 +19,7 @@ class MailLog extends Model
      *
      * @var string
      */
-    protected $table = 'NEXTI_DATA_LOG_EMAIL';
+    protected $table = 'nexti_data_log_email';
 
     /**
      * The attributes that are mass assignable.
