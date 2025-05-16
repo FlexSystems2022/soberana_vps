@@ -43,7 +43,7 @@ return new class extends Migration
             $table->string('EMAIL', 100)->nullable();
 
             $table->index(
-                name: 'NEXTI_COLABORADOR_COLABORADOR',
+                name: 'nexti_colaborador_colaborador',
                 columns: [
                     'NUMEMP',
                     'NUMCAD',
@@ -52,7 +52,7 @@ return new class extends Migration
             );
 
             $table->index(
-                name: 'NEXTI_COLABORADOR_EMPRESA',
+                name: 'nexti_colaborador_empresa',
                 columns: [
                     'CODFIL',
                     'NUMEMP'

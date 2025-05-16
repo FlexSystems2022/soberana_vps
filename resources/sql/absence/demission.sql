@@ -1,28 +1,28 @@
 INSERT INTO nexti_ausencias_alterdata(NUMEMP, TIPCOL, NUMCAD, ABSENCESITUATIONEXTERNALID, FINISHDATETIME, STARTDATETIME, IDEXTERNO, TIPO, SITUACAO)
 SELECT
-    NEXTI_COLABORADOR.NUMEMP,
-    NEXTI_COLABORADOR.TIPCOL,
-    NEXTI_COLABORADOR.NUMCAD,
+    nexti_colaborador.NUMEMP,
+    nexti_colaborador.TIPCOL,
+    nexti_colaborador.NUMCAD,
     15671 AS ABSENCESITUATIONEXTERNALID,
     NULL as FINISHDATETIME,
-    NEXTI_COLABORADOR.DATADEM AS STARTDATETIME,
+    nexti_colaborador.DATADEM AS STARTDATETIME,
     CONCAT(
-        'DM-', NEXTI_COLABORADOR.NUMEMP, '-', NEXTI_COLABORADOR.NUMCAD, '-',
-        DATE_FORMAT(NEXTI_COLABORADOR.DATADEM, '%Y-%m-%d')
+        'DM-', nexti_colaborador.NUMEMP, '-', nexti_colaborador.NUMCAD, '-',
+        DATE_FORMAT(nexti_colaborador.DATADEM, '%Y-%m-%d')
     ) AS IDEXTERNO,
     0 AS TIPO,
     0 AS SITUACAO
-FROM NEXTI_COLABORADOR
-WHERE NEXTI_COLABORADOR.DATADEM IS NOT NULL
-AND NEXTI_COLABORADOR.SITFUN = 3
-AND NEXTI_COLABORADOR.TIPO <> 3
+FROM nexti_colaborador
+WHERE nexti_colaborador.DATADEM IS NOT NULL
+AND nexti_colaborador.SITFUN = 3
+AND nexti_colaborador.TIPO <> 3
 AND NOT EXISTS(
     SELECT
         1
     FROM nexti_ausencias_alterdata
     WHERE IDEXTERNO = CONCAT(
         'DM-',
-        NEXTI_COLABORADOR.NUMEMP, '-', NEXTI_COLABORADOR.NUMCAD, '-',
-        DATE_FORMAT(NEXTI_COLABORADOR.DATADEM, '%Y-%m-%d')
+        nexti_colaborador.NUMEMP, '-', nexti_colaborador.NUMCAD, '-',
+        DATE_FORMAT(nexti_colaborador.DATADEM, '%Y-%m-%d')
     )
 )
