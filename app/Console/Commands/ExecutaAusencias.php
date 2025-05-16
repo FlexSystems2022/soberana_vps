@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class ProcessaAfastamentosGeral extends Command
+class ExecutaAusencias extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ProcessaAfastamentosGeral';
+    protected $signature = 'ExecutaAusencias';
 
     /**
      * The console command description.
