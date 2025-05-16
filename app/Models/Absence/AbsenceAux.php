@@ -18,7 +18,7 @@ class AbsenceAux extends Model
      *
      * @var string
      */
-    protected $table = 'NEXTI_AUSENCIAS_AUX';
+    protected $table = 'nexti_ausencias_aux';
 
     /**
      * The primary key for the model.
