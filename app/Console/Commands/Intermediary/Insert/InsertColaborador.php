@@ -24,83 +24,87 @@ class InsertColaborador extends CommandIntermediary
      * @return string
      **/
     protected function dispachItem(object $colaborador): string
-    {
-		$fields = [
-			'CDCHAMADA' => $colaborador->cdchamada,
-			'NUMEMP' => $colaborador->numemp,
-			'TIPCOL' => 1,
-			'NUMCAD' => $colaborador->matricula_esocial,
-			'NOMFUN' => trim($colaborador->nmfuncionario),
-			'DATANASC' => $colaborador->dtnascimento ?? null,
-			'DATADM' => $colaborador->dtadmissao ?? null,
-			'DATADEM' => $colaborador->dtdemissao ?? null,
-			'CODFIL' => 1,
-			'CARGO' => $colaborador->idexternocargo,
-			'ESCALA' => null,
-			'POSTO' => $colaborador->posto,
-			'SITFUN' => 1,
-			'TIPO' => 0,
-			'SITUACAO' => 0,
-			'OBSERVACAO' => '',
-			'ID' => 0,
-			'IDEXTERNO' => $colaborador->numemp . '-' . $colaborador->cdchamada,
-			'TABORG' => null,
-			'NUMLOC' => null,
-			'IGNOREVALIDATION' => 0,
-			'TELEFONE' => preg_replace('/[^0-9]/', '', trim($colaborador->nrtelefone)) ?: null,
-			'CELULAR' => preg_replace('/[^0-9]/', '', trim($colaborador->nrcelular)) ?: null,
-			'ENDERECO' => trim($colaborador->nmendereco) ?: null,
-			'NUMERO' => trim($colaborador->nrendereco) ?: null,
-			'BAIRRO' => trim($colaborador->nmbairro) ?: null,
-			'CPF' => preg_replace('/[^0-9]/', '', trim($colaborador->nrcpf)) ?: null,
-			'PIS' => trim($colaborador->nrpispasep) ?: null,
-			'EMAIL' => null,
-		];
-
-		if($fields['DATADEM']) {
-			$fields['SITFUN'] = 3;
-		}
-
-		if($fields['DATANASC']) {
-			$fields['DATANASC'] = Carbon::parse($fields['DATANASC'])->format('Y-m-d');
-		}
-
-		if($fields['DATADM']) {
-			$fields['DATADM'] = Carbon::parse($fields['DATADM'])->format('Y-m-d');
-		}
-
-		if($fields['DATADEM']) {
-			$fields['DATADEM'] = Carbon::parse($fields['DATADEM'])->format('Y-m-d');
-		}
-
-		$found = People::where('IDEXTERNO', $fields['IDEXTERNO'])->first();
-		if(!$found) {
-			if($fields['DATADEM']) {
-				return "Colaborador {$fields['IDEXTERNO']} ignorado!";
-			}
-
-			People::create($fields);
-
-			return "Colaborador {$fields['IDEXTERNO']} criado!";
-		}
-
-		$toArray = array_merge($found->toArray(), [
-			'DATANASC' => $found->DATANASC?->format('Y-m-d'),
-			'DATADM' => $found->DATADM?->format('Y-m-d'),
-			'DATADEM' => $found->DATADEM?->format('Y-m-d'),
-		]);
-
-		if($found->ID && $this->hasDiff($toArray, $fields)) {
-			if($found->TIPO->value != 3) {
-				$fields['TIPO'] = 1;
-				$fields['SITUACAO'] = 0;
-			}
-		}
-
-		$found->update($fields);
-
-		return "Colaborador {$fields['IDEXTERNO']} atualizado!";
+{
+    // Ignorar se não houver matrícula
+    if (empty($colaborador->matricula_esocial)) {
+        return "Colaborador {$colaborador->numemp}-{$colaborador->cdchamada} ignorado (sem matrícula_esocial)!";
     }
+
+    $fields = [
+        'CDCHAMADA' => $colaborador->cdchamada,
+        'NUMEMP' => $colaborador->numemp,
+        'TIPCOL' => 1,
+        'NUMCAD' => $colaborador->matricula_esocial,
+        'NOMFUN' => trim($colaborador->nmfuncionario),
+        'DATANASC' => $colaborador->dtnascimento ?? null,
+        'DATADM' => $colaborador->dtadmissao ?? null,
+        'DATADEM' => $colaborador->dtdemissao ?? null,
+        'CODFIL' => 1,
+        'CARGO' => $colaborador->idexternocargo,
+        'ESCALA' => null,
+        'POSTO' => $colaborador->posto,
+        'SITFUN' => 1,
+        'TIPO' => 0,
+        'SITUACAO' => 0,
+        'OBSERVACAO' => '',
+        'ID' => 0,
+        'IDEXTERNO' => $colaborador->numemp . '-' . $colaborador->cdchamada,
+        'TABORG' => null,
+        'NUMLOC' => null,
+        'IGNOREVALIDATION' => 0,
+        'TELEFONE' => preg_replace('/[^0-9]/', '', trim($colaborador->nrtelefone)) ?: null,
+        'CELULAR' => preg_replace('/[^0-9]/', '', trim($colaborador->nrcelular)) ?: null,
+        'ENDERECO' => trim($colaborador->nmendereco) ?: null,
+        'NUMERO' => trim($colaborador->nrendereco) ?: null,
+        'BAIRRO' => trim($colaborador->nmbairro) ?: null,
+        'CPF' => preg_replace('/[^0-9]/', '', trim($colaborador->nrcpf)) ?: null,
+        'PIS' => trim($colaborador->nrpispasep) ?: null,
+        'EMAIL' => null,
+    ];
+
+    if ($fields['DATADEM']) {
+        $fields['SITFUN'] = 3;
+    }
+
+    if ($fields['DATANASC']) {
+        $fields['DATANASC'] = Carbon::parse($fields['DATANASC'])->format('Y-m-d');
+    }
+
+    if ($fields['DATADM']) {
+        $fields['DATADM'] = Carbon::parse($fields['DATADM'])->format('Y-m-d');
+    }
+
+    if ($fields['DATADEM']) {
+        $fields['DATADEM'] = Carbon::parse($fields['DATADEM'])->format('Y-m-d');
+    }
+
+    $found = People::where('IDEXTERNO', $fields['IDEXTERNO'])->first();
+    if (!$found) {
+        if ($fields['DATADEM']) {
+            return "Colaborador {$fields['IDEXTERNO']} ignorado!";
+        }
+
+        People::create($fields);
+        return "Colaborador {$fields['IDEXTERNO']} criado!";
+    }
+
+    $toArray = array_merge($found->toArray(), [
+        'DATANASC' => $found->DATANASC?->format('Y-m-d'),
+        'DATADM' => $found->DATADM?->format('Y-m-d'),
+        'DATADEM' => $found->DATADEM?->format('Y-m-d'),
+    ]);
+
+    if ($found->ID && $this->hasDiff($toArray, $fields)) {
+        if ($found->TIPO->value != 3) {
+            $fields['TIPO'] = 1;
+            $fields['SITUACAO'] = 0;
+        }
+    }
+
+    $found->update($fields);
+    return "Colaborador {$fields['IDEXTERNO']} atualizado!";
+}
+
 
     /**
      * Busca colaboradores no banco do cliente
