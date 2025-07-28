@@ -125,7 +125,7 @@ class BuscaColaboradores extends CommandNexti
             VALUES({$reg['id']}, '{$reg['externalId']}', '{$reg['name']}', '{$reg['enrolment']}', {$reg['companyId']}, {$reg['personTypeId']}, {$reg['personSituationId']}, '{$reg['cpf']}', '{$reg['pis']}', '{$reg['email']}', '{$reg['userAccountId']}', '{$reg['externalCareerId']}', CONVERT(DATETIME,'{$reg['demissionDate']}', 120))
         ";
 
-        DB::connection('sqlsrv')->statement($query);
+        DB::connection('mysql')->statement($query);
 
         $this->info("Colaborador {$reg['name']} Inserido com Sucesso!");
     }
@@ -136,7 +136,7 @@ class BuscaColaboradores extends CommandNexti
             DELETE FROM nexti_colaborador_aux
         ";
 
-        DB::connection('sqlsrv')->statement($query);
+        DB::connection('mysql')->statement($query);
     }
 
     /**
