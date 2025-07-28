@@ -144,7 +144,7 @@ class BuscaColaboradores extends CommandNexti
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
         $this->restClient = new \App\Shared\Provider\RestClient('nexti');
         $this->restClient->withOAuthToken('client_credentials');
