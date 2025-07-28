@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Intermediary\Insert;
 
-use Illuminate\Console\Command;
+use App\Shared\Commands\CommandIntermediary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
