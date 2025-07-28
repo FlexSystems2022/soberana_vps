@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Console\Commands\Nexti\Get;
