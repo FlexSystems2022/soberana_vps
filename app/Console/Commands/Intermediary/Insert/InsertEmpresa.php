@@ -62,9 +62,6 @@ class InsertEmpresa extends CommandIntermediary
     {
     	return DBPG::initialize()
     				->table('wphd.empresa')
-    				->whereIn('wphd.empresa.cdempresa', [
-    					1, 2, 3
-    				])
     				->get();
     }
 }
