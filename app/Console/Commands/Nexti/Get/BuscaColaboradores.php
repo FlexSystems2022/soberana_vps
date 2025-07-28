@@ -122,8 +122,9 @@ class BuscaColaboradores extends CommandNexti
         $query = 
         "
             INSERT INTO nexti_colaborador_aux(ID, EXTERNALID, NAME, ENROLMENT, COMPANYID, PERSONTYPEID, PERSONSITUATIONID, CPF, PIS, EMAIL, USERACCOUNTID, EXTERNALCAREERID, DEMISSIONDATE)
-            VALUES({$reg['id']}, '{$reg['externalId']}', '{$reg['name']}', '{$reg['enrolment']}', {$reg['companyId']}, {$reg['personTypeId']}, {$reg['personSituationId']}, '{$reg['cpf']}', '{$reg['pis']}', '{$reg['email']}', '{$reg['userAccountId']}', '{$reg['externalCareerId']}', CONVERT(DATETIME,'{$reg['demissionDate']}', 120))
+            VALUES({$reg['id']}, '{$reg['externalId']}', '{$reg['name']}', '{$reg['enrolment']}', {$reg['companyId']}, {$reg['personTypeId']}, {$reg['personSituationId']}, '{$reg['cpf']}', '{$reg['pis']}', '{$reg['email']}', '{$reg['userAccountId']}', '{$reg['externalCareerId']}', '{$reg['demissionDate']}')
         ";
+
 
         DB::connection('mysql')->statement($query);
 
