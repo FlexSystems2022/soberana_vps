@@ -108,92 +108,50 @@ class InsertColaborador extends CommandIntermediary
      * @return \Illuminate\Support\Collection
      **/
     protected function buscaRegistros(): Collection
-    {
-    	$empresa_1 =  DBPG::initialize()
-	    				->table('wdp.f00001')
-	    				->select([
-							'wdp.f00001.cdchamada',
-							'wdp.f00001.matricula_esocial',
-							'wdp.f00001.nmfuncionario',
-							'wdp.f00001.dtnascimento',
-							'wdp.f00001.dtadmissao',
-							'wdp.f00001.cdchamada',
-							'wdp.f00001.nrtelefone',
-							'wdp.f00001.nrcelular',
-							'wdp.f00001.nmendereco',
-							'wdp.f00001.nrendereco',
-							'wdp.f00001.nmbairro',
-							'wdp.f00001.nrcpf',
-							'wdp.f00001.dtdemissao',
-							'wdp.f00001.nrpispasep'
-	    				])
-	    				->selectRaw('1 as numemp')
-	    				->selectRaw('wdp.depto.cdchamada as posto')
-	    				->selectRaw('wdp.funcoesb.cdchamada as idexternocargo')
-	    				->leftJoin('wdp.funcoesb',
-	    					'wdp.funcoesb.idfuncao', '=', 'wdp.f00001.idfuncao'
-	    				)
-	    				->leftJoin('wdp.depto',
-	    					'wdp.depto.iddepartamento', '=', 'wdp.f00001.iddepartamento'
-	    				);
+	{
+		$tabelas = [
+			'f00001', 'f00002', 'f00003', 'f00004', 'f00005', 'f00006', 'f00007', 'f00008', 'f00009',
+			'f00014', 'f00017', 'f00020', 'f01000', 'f01001', 'f01002', 'f01003', 'f01004', 'f01005',
+			'f01006', 'f01007', 'f01008', 'f01009', 'f01010', 'f01011', 'f02021', 'f02022', 'f02023',
+			'f02024', 'f02025', 'f02026', 'f02027', 'f02028', 'f02029', 'f02030', 'f02031', 'f02032',
+			'f02033', 'f02034', 'f02035', 'f02036', 'f02037', 'f02038', 'f02039', 'f02040', 'f02041',
+			'f02042', 'f02043', 'f02044', 'f02045', 'f02046', 'f02047'
+		];
 
-    	$empresa_2 =  DBPG::initialize()
-	    				->table('wdp.f00002')
-	    				->select([
-							'wdp.f00002.cdchamada',
-							'wdp.f00002.matricula_esocial',
-							'wdp.f00002.nmfuncionario',
-							'wdp.f00002.dtnascimento',
-							'wdp.f00002.dtadmissao',
-							'wdp.f00002.cdchamada',
-							'wdp.f00002.nrtelefone',
-							'wdp.f00002.nrcelular',
-							'wdp.f00002.nmendereco',
-							'wdp.f00002.nrendereco',
-							'wdp.f00002.nmbairro',
-							'wdp.f00002.nrcpf',
-							'wdp.f00002.dtdemissao',
-							'wdp.f00002.nrpispasep'
-	    				])
-	    				->selectRaw('2 as numemp')
-	    				->selectRaw('wdp.depto.cdchamada as posto')
-	    				->selectRaw('wdp.funcoesb.cdchamada as idexternocargo')
-	    				->leftJoin('wdp.funcoesb',
-	    					'wdp.funcoesb.idfuncao', '=', 'wdp.f00002.idfuncao'
-	    				)
-	    				->leftJoin('wdp.depto',
-	    					'wdp.depto.iddepartamento', '=', 'wdp.f00002.iddepartamento'
-	    				);
+		$queries = [];
+		foreach ($tabelas as $index => $tabela) {
+			$query = DBPG::initialize()
+				->table("wdp.$tabela")
+				->select([
+					"wdp.$tabela.cdchamada",
+					"wdp.$tabela.matricula_esocial",
+					"wdp.$tabela.nmfuncionario",
+					"wdp.$tabela.dtnascimento",
+					"wdp.$tabela.dtadmissao",
+					"wdp.$tabela.nrtelefone",
+					"wdp.$tabela.nrcelular",
+					"wdp.$tabela.nmendereco",
+					"wdp.$tabela.nrendereco",
+					"wdp.$tabela.nmbairro",
+					"wdp.$tabela.nrcpf",
+					"wdp.$tabela.dtdemissao",
+					"wdp.$tabela.nrpispasep",
+				])
+				->selectRaw('? as numemp', [$index + 1])
+				->selectRaw('wdp.depto.cdchamada as posto')
+				->selectRaw('wdp.funcoesb.cdchamada as idexternocargo')
+				->leftJoin('wdp.funcoesb', "wdp.funcoesb.idfuncao", "=", "wdp.$tabela.idfuncao")
+				->leftJoin('wdp.depto', "wdp.depto.iddepartamento", "=", "wdp.$tabela.iddepartamento");
 
-    	return DBPG::initialize()
-    				->table('wdp.f00003')
-    				->select([
-						'wdp.f00003.cdchamada',
-						'wdp.f00003.matricula_esocial',
-						'wdp.f00003.nmfuncionario',
-						'wdp.f00003.dtnascimento',
-						'wdp.f00003.dtadmissao',
-						'wdp.f00003.cdchamada',
-						'wdp.f00003.nrtelefone',
-						'wdp.f00003.nrcelular',
-						'wdp.f00003.nmendereco',
-						'wdp.f00003.nrendereco',
-						'wdp.f00003.nmbairro',
-						'wdp.f00003.nrcpf',
-						'wdp.f00003.dtdemissao',
-						'wdp.f00003.nrpispasep'
-    				])
-    				->selectRaw('3 as numemp')
-					->selectRaw('wdp.depto.cdchamada as posto')
-    				->selectRaw('wdp.funcoesb.cdchamada as idexternocargo')
-    				->leftJoin('wdp.funcoesb',
-    					'wdp.funcoesb.idfuncao', '=', 'wdp.f00003.idfuncao'
-    				)
-    				->leftJoin('wdp.depto',
-    					'wdp.depto.iddepartamento', '=', 'wdp.f00003.iddepartamento'
-    				)
-    				->union($empresa_1)
-    				->union($empresa_2)
-    				->get();
-    }
+			$queries[] = $query;
+		}
+
+		// Combina todos os selects usando union
+		$mainQuery = array_shift($queries);
+		foreach ($queries as $q) {
+			$mainQuery->union($q);
+		}
+
+		return $mainQuery->get();
+	}
 }
