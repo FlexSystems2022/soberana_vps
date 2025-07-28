@@ -242,7 +242,7 @@ class InsertAusencia extends CommandIntermediary
                 ->whereNull('wdp.f00014.dtdemissao')
         )
         ->unionAll(fn(Builder $union) =>
-            $union->from('wdp.a0017')
+            $union->from('wdp.a00017')
                 ->select([
                     'wdp.f00017.matricula_esocial',
                     'wdp.a00017.idafastamento',
