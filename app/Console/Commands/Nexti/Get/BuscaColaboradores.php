@@ -152,5 +152,8 @@ class BuscaColaboradores extends CommandNexti
         //$this->AtualizaDiferenças();
         $this->limpaTabela();
         $this->getColaboradorRecursivo();
+
+        return 0;  // OU return self::SUCCESS; se usar Illuminate\Console\Command
     }
+
 }
