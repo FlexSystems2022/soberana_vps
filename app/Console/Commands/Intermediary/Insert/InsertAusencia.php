@@ -2,96 +2,301 @@
 
 namespace App\Console\Commands\Intermediary\Insert;
 
+use App\Shared\DBPG;
+use App\Models\Absence\AbsenceAux;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Query\Builder;
 use App\Shared\Commands\CommandIntermediary;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
-class InsertAusencia extends Command
+class InsertAusencia extends CommandIntermediary
 {
+    /**
+     * The name and signature of the console command.
+     */
     protected $signature = 'InsertAusencia';
-    protected $description = 'Insere ausências vindas do Senior nas tabelas da integração do Nexti';
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
-        $tabelas = collect([
-            '00001', '00002', '00003', '00004', '00005', '00006', '00007', '00008', '00009',
-            '00014', '00017', '00020', '01000', '01001', '01002', '01003', '01004', '01005',
-            '01006', '01007', '01008', '01009', '01010', '01011', '02021', '02022', '02023',
-            '02024', '02025', '02026', '02027', '02028', '02029', '02030', '02031', '02032',
-            '02033', '02034', '02035', '02036', '02037', '02038', '02039', '02040', '02041',
-            '02042', '02043', '02044', '02045', '02046', '02047',
-        ])->map(fn($sufixo) => [
-            'a' => "a$sufixo",
-            'f' => "f$sufixo",
-            'numemp' => (int)ltrim($sufixo, '0'),
-        ])->toArray();
+    	try {
+			AbsenceAux::truncate();
 
-        $ausencias = DB::table(
-            DB::raw("({$this->geraUnions($tabelas)->toSql()}) as ausencias")
-        )
-        ->mergeBindings($this->geraUnions($tabelas))
-        ->join('wdp.especial', function ($join) {
-            $join->on('especial.numemp', '=', 'ausencias.numemp');
-            $join->on('especial.matricula', '=', 'ausencias.matricula_esocial');
-        })
-        ->select(
-            'ausencias.numemp',
-            'ausencias.matricula_esocial',
-            'ausencias.idafastamento',
-            'ausencias.dtinicial',
-            'ausencias.dtfinal',
-            'ausencias.dsmotivo',
-            'ausencias.cid',
-            'wdp.especial.cdchamada AS idexternosituacao'
-        )
-        ->get();
+    		return parent::handle();
+    	} catch(\Throwable $e) {
+    		$this->error($e->getMessage());
 
-        dd($ausencias);
+    		return static::FAILURE;
+    	}
     }
 
-    private function geraUnions(array $pares)
+    /**
+     * Dispatch Item
+     **/
+    protected function dispachItem(object $ausencia): string
     {
-        if (empty($pares)) {
-            throw new \InvalidArgumentException("Lista de pares de tabelas está vazia.");
-        }
+		$campos = [
+			'IDAFASTAMENTO' => $ausencia->idafastamento,
+			'NUMEMP' => intval($ausencia->numemp),
+			'TIPCOL' => 1,
+			'NUMCAD' => $ausencia->matricula_esocial,
+			'ABSENCESITUATIONEXTERNALID' => $ausencia->idexternosituacao,
+			'FINISHDATETIME' => $ausencia->dtfinal,
+			'STARTDATETIME' => $ausencia->dtinicial,
+			'IDEXTERNO' => $ausencia->idafastamento . '-' . $ausencia->numemp,
+			'CIDCODE' => $ausencia->cid,
+			'CIDDESCRICAO' => null,
+			'CIDID' => null,
+			'DOUTOR_CRM' => null,
+			'DOUTOR_NOME' => null,
+			'DOUTOR_ID' => null,
+			'OBSAFA' => $ausencia->dsmotivo,
+		];
 
-        $first = array_shift($pares);
+		$found = AbsenceAux::where('IDEXTERNO', $campos['IDEXTERNO'])->first();
+		if($found) {
+			return "Ausência {$campos['IDEXTERNO']} ignorada!";
+		}
 
-        $base = DB::table("wdp.{$first['a']} as a")
-            ->join("wdp.{$first['f']} as f", function ($join) use ($first) {
-                $join->on('a.codcoligada', '=', 'f.codcoligada')
-                     ->on('a.idmov', '=', 'f.idmov');
-            })
-            ->select([
-                DB::raw("{$first['numemp']} as numemp"),
-                'a.matricula_esocial',
-                'f.idafastamento',
-                'f.dtinicial',
-                'f.dtfinal',
-                'f.dsmotivo',
-                'f.cid',
-            ]);
+		AbsenceAux::create($campos);
 
-        foreach ($pares as $par) {
-            $union = DB::table("wdp.{$par['a']} as a")
-                ->join("wdp.{$par['f']} as f", function ($join) use ($par) {
-                    $join->on('a.codcoligada', '=', 'f.codcoligada')
-                         ->on('a.idmov', '=', 'f.idmov');
-                })
-                ->select([
-                    DB::raw("{$par['numemp']} as numemp"),
-                    'a.matricula_esocial',
-                    'f.idafastamento',
-                    'f.dtinicial',
-                    'f.dtfinal',
-                    'f.dsmotivo',
-                    'f.cid',
-                ]);
+		return "Ausência {$campos['IDEXTERNO']} Criado!";
+    }
 
-            $base->unionAll($union);
-        }
+    /**
+     * Busca ausencias no banco do cliente
+     **/
+    protected function buscaRegistros(): Collection
+	{
+		$tabelas = [
+			'a00001' => 'f00001',
+			'a00002' => 'f00002',
+			'a00003' => 'f00003',
+			'a00004' => 'f00004',
+			'a00005' => 'f00005',
+			'a00006' => 'f00006',
+			'a00007' => 'f00007',
+			'a00008' => 'f00008',
+			'a00009' => 'f00009',
+			'a0014'  => 'f0014',
+			'a0017'  => 'f0017',
+			'a0020'  => 'f0020',
+			'a1000'  => 'f1000',
+			'a1001'  => 'f1001',
+			'a1002'  => 'f1002',
+			'a1003'  => 'f1003',
+			'a1004'  => 'f1004',
+			'a1005'  => 'f1005',
+			'a1006'  => 'f1006',
+			'a1007'  => 'f1007',
+			'a1008'  => 'f1008',
+			'a1009'  => 'f1009',
+			'a1010'  => 'f1010',
+			'a1011'  => 'f1011',
+			'a2021'  => 'f2021',
+			'a2022'  => 'f2022',
+			'a2023'  => 'f2023',
+			'a2024'  => 'f2024',
+			'a2025'  => 'f2025',
+			'a2026'  => 'f2026',
+			'a2027'  => 'f2027',
+			'a2028'  => 'f2028',
+			'a2029'  => 'f2029',
+			'a2030'  => 'f2030',
+			'a2031'  => 'f2031',
+			'a2032'  => 'f2032',
+			'a2033'  => 'f2033',
+			'a2034'  => 'f2034',
+			'a2035'  => 'f2035',
+			'a2036'  => 'f2036',
+			'a2037'  => 'f2037',
+			'a2038'  => 'f2038',
+			'a2039'  => 'f2039',
+			'a2040'  => 'f2040',
+			'a2041'  => 'f2041',
+			'a2042'  => 'f2042',
+			'a2043'  => 'f2043',
+			'a2044'  => 'f2044',
+			'a2045'  => 'f2045',
+			'a2046'  => 'f2046',
+			'a2047'  => 'f2047',
+		];
 
-        return $base;
+		$query = DBPG::initialize()->query();
+		$unions = [];
+
+		foreach ($tabelas as $aTable => $fTable) {
+			$alias = "aus_{$aTable}";
+			$unions[] = DB::table("wdp.$aTable AS $alias")
+				->selectRaw("
+					f.matricula_esocial,
+					$alias.idafastamento,
+					$alias.idespecial,
+					$alias.dtinicial,
+					$alias.dtfinal,
+					$alias.dsmotivo,
+					$alias.cid,
+					'" . substr($aTable, -1) . "' AS numemp
+				")
+				->join("wdp.$fTable AS f", "f.idfuncionario", "=", "$alias.idfuncionario")
+				->whereNull("f.dtdemissao");
+		}
+
+		$mainQuery = array_shift($unions);
+		foreach ($unions as $unionQuery) {
+			$mainQuery->unionAll($unionQuery);
+		}
+
+		return $query
+			->select([
+				'ausencias.numemp',
+				'ausencias.matricula_esocial',
+				'ausencias.idafastamento',
+				'ausencias.dtinicial',
+				'ausencias.dtfinal',
+				'ausencias.dsmotivo',
+				'ausencias.cid',
+			])
+			->selectRaw('wdp.especial.cdchamada AS idexternosituacao')
+			->fromSub($mainQuery, 'ausencias')
+			->join('wdp.especial', 'wdp.especial.idespecial', '=', 'ausencias.idespecial')
+			->get();
+	}
+
+
+    /**
+     * After execute
+     */
+    protected function afterExecute(): void
+    {
+    	$this->createAbsences();
+    	$this->updateAbsences();
+    	$this->deleteAbsences();
+    }
+
+    /**
+     * Create Absences
+     */
+    private function createAbsences(): void
+    {
+    	$query = "
+    		INSERT INTO nexti_ausencias_alterdata (IDAFASTAMENTO, NUMEMP, TIPCOL, NUMCAD, ABSENCESITUATIONEXTERNALID, FINISHDATETIME, STARTDATETIME, TIPO, SITUACAO, ID, IDEXTERNO, CIDCODE, CIDDESCRICAO, CIDID, DOUTOR_CRM, DOUTOR_NOME, DOUTOR_ID, OBSAFA)
+			SELECT 
+			   nexti_ausencias_aux.IDAFASTAMENTO,
+			   nexti_ausencias_aux.NUMEMP,
+			   nexti_ausencias_aux.TIPCOL,
+			   nexti_ausencias_aux.NUMCAD,
+			   nexti_ausencias_aux.ABSENCESITUATIONEXTERNALID,
+			   nexti_ausencias_aux.FINISHDATETIME,
+			   nexti_ausencias_aux.STARTDATETIME,
+			   0 AS TIPO,
+			   0 AS SITUACAO,
+			   0 AS ID,
+			   nexti_ausencias_aux.IDEXTERNO,
+			   nexti_ausencias_aux.CIDCODE,
+			   nexti_ausencias_aux.CIDDESCRICAO,
+			   nexti_ausencias_aux.CIDID,
+			   nexti_ausencias_aux.DOUTOR_CRM,
+			   nexti_ausencias_aux.DOUTOR_NOME,
+			   nexti_ausencias_aux.DOUTOR_ID,
+			   nexti_ausencias_aux.OBSAFA
+			FROM nexti_ausencias_aux
+			WHERE NOT EXISTS(
+			    SELECT
+				 	1
+				FROM nexti_ausencias_alterdata
+			    WHERE nexti_ausencias_alterdata.IDEXTERNO = nexti_ausencias_aux.IDEXTERNO
+			)
+    	";
+
+        DB::statement($query);
+    }
+
+    /**
+     * Update Absence
+     */
+    private function updateAbsences(): void
+    {
+    	$query = "
+			UPDATE nexti_ausencias_alterdata
+			JOIN nexti_ausencias_aux
+				ON(nexti_ausencias_aux.IDEXTERNO = nexti_ausencias_alterdata.IDEXTERNO
+					AND (nexti_ausencias_aux.ABSENCESITUATIONEXTERNALID <> nexti_ausencias_alterdata.ABSENCESITUATIONEXTERNALID
+						OR nexti_ausencias_aux.FINISHDATETIME <> nexti_ausencias_alterdata.FINISHDATETIME
+						OR nexti_ausencias_aux.STARTDATETIME <> nexti_ausencias_alterdata.STARTDATETIME
+					)
+				)
+				SET nexti_ausencias_alterdata.ABSENCESITUATIONEXTERNALID = nexti_ausencias_aux.ABSENCESITUATIONEXTERNALID,
+					nexti_ausencias_alterdata.FINISHDATETIME = nexti_ausencias_aux.FINISHDATETIME,
+					nexti_ausencias_alterdata.STARTDATETIME = nexti_ausencias_aux.STARTDATETIME,
+					nexti_ausencias_alterdata.SITUACAO = 0,
+					nexti_ausencias_alterdata.TIPO = 1
+			WHERE nexti_ausencias_alterdata.TIPO <> 3
+			AND nexti_ausencias_alterdata.SITUACAO = 1
+    	";
+
+        DB::statement($query);
+    }
+
+    /**
+     * Delete Absence
+     */
+    private function deleteAbsences(): void
+    {
+    	$query = "
+			UPDATE nexti_ausencias_alterdata
+			SET nexti_ausencias_alterdata.TIPO = 3,
+				nexti_ausencias_alterdata.SITUACAO = 0
+			WHERE NOT EXISTS(
+				SELECT
+					1
+				FROM nexti_ausencias_aux
+				WHERE nexti_ausencias_aux.IDEXTERNO = nexti_ausencias_alterdata.IDEXTERNO
+			)
+			AND EXISTS(
+				SELECT 
+					1
+				FROM nexti_colaborador
+				WHERE nexti_colaborador.NUMEMP = nexti_ausencias_alterdata.NUMEMP
+				AND nexti_colaborador.TIPCOL = nexti_ausencias_alterdata.TIPCOL
+				AND nexti_colaborador.NUMCAD = nexti_ausencias_alterdata.NUMCAD
+				AND nexti_colaborador.DATADEM IS NULL
+			)
+			AND nexti_ausencias_alterdata.ABSENCESITUATIONEXTERNALID <> '15671'
+			AND nexti_ausencias_alterdata.TIPO <> 3
+			AND nexti_ausencias_alterdata.ID IS NOT NULL
+			AND nexti_ausencias_alterdata.SITUACAO = 1
+    	";
+
+        DB::statement($query);
+
+    	$query = "
+			UPDATE nexti_ausencias_alterdata
+			SET nexti_ausencias_alterdata.TIPO = 3,
+				nexti_ausencias_alterdata.SITUACAO = 1,
+				nexti_ausencias_alterdata.OBSERVACAO = 'Exclusão via merge'
+			WHERE NOT EXISTS(
+				SELECT
+					1
+				FROM nexti_ausencias_aux
+				WHERE nexti_ausencias_aux.IDEXTERNO = nexti_ausencias_alterdata.IDEXTERNO
+			)
+			AND EXISTS(
+				SELECT 
+					1
+				FROM nexti_colaborador
+				WHERE nexti_colaborador.NUMEMP = nexti_ausencias_alterdata.NUMEMP
+				AND nexti_colaborador.TIPCOL = nexti_ausencias_alterdata.TIPCOL
+				AND nexti_colaborador.NUMCAD = nexti_ausencias_alterdata.NUMCAD
+				AND nexti_colaborador.DATADEM IS NULL
+			)
+			AND nexti_ausencias_alterdata.ABSENCESITUATIONEXTERNALID <> '15671'
+			AND nexti_ausencias_alterdata.TIPO = 0
+			AND nexti_ausencias_alterdata.SITUACAO = 0
+    	";
+
+        DB::statement($query);
     }
 }
