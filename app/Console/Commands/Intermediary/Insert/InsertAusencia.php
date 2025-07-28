@@ -238,8 +238,8 @@ class InsertAusencia extends CommandIntermediary
                 ->selectRaw("'a00014' as origem")
                 ->selectRaw("'f0014' as origem_func")
                 ->selectRaw("'a00014' as numemp")
-                ->join('wdp.f0014', 'wdp.f0014.idfuncionario', '=', 'wdp.a00014.idfuncionario')
-                ->whereNull('wdp.f0014.dtdemissao')
+                ->join('wdp.f00014', 'wdp.f00014.idfuncionario', '=', 'wdp.a00014.idfuncionario')
+                ->whereNull('wdp.f00014.dtdemissao')
         )
         ->unionAll(fn(Builder $union) =>
             $union->from('wdp.a0017')
