@@ -68,7 +68,7 @@ class InsertAusencia extends CommandIntermediary
     /**
      * Busca ausencias no banco do cliente
      **/
-    protected function buscaRegistros(): Collection
+  protected function buscaRegistros(): Collection
 	{
 		$tabelas = [
 			'a00001' => 'f00001',
@@ -124,46 +124,50 @@ class InsertAusencia extends CommandIntermediary
 			'a2047'  => 'f2047',
 		];
 
-		$query = DBPG::initialize()->query();
-		$unions = [];
+		$unionSqls = [];
 
 		foreach ($tabelas as $aTable => $fTable) {
-			$alias = "aus_{$aTable}";
-			$unions[] = DB::table("wdp.$aTable AS $alias")
-				->selectRaw("
+			$sql = "
+				SELECT 
 					f.matricula_esocial,
-					$alias.idafastamento,
-					$alias.idespecial,
-					$alias.dtinicial,
-					$alias.dtfinal,
-					$alias.dsmotivo,
-					$alias.cid,
-					'" . substr($aTable, -1) . "' AS numemp
-				")
-				->join("wdp.$fTable AS f", "f.idfuncionario", "=", "$alias.idfuncionario")
-				->whereNull("f.dtdemissao");
+					a.idafastamento,
+					a.idespecial,
+					a.dtinicial,
+					a.dtfinal,
+					a.dsmotivo,
+					a.cid,
+					'{$aTable}' as origem,
+					'{$fTable}' as origem_func,
+					'{$aTable}' as numemp
+				FROM wdp.\"$aTable\" a
+				INNER JOIN wdp.\"$fTable\" f ON f.idfuncionario = a.idfuncionario
+				WHERE f.dtdemissao IS NULL
+			";
+			$unionSqls[] = $sql;
 		}
 
-		$mainQuery = array_shift($unions);
-		foreach ($unions as $unionQuery) {
-			$mainQuery->unionAll($unionQuery);
-		}
+		$finalSql = implode(" UNION ALL ", $unionSqls);
 
-		return $query
-			->select([
-				'ausencias.numemp',
-				'ausencias.matricula_esocial',
-				'ausencias.idafastamento',
-				'ausencias.dtinicial',
-				'ausencias.dtfinal',
-				'ausencias.dsmotivo',
-				'ausencias.cid',
-			])
-			->selectRaw('wdp.especial.cdchamada AS idexternosituacao')
-			->fromSub($mainQuery, 'ausencias')
-			->join('wdp.especial', 'wdp.especial.idespecial', '=', 'ausencias.idespecial')
-			->get();
+		// Agora aplicamos a junção com a tabela especial
+		$finalSql = "
+			SELECT 
+				ausencias.numemp,
+				ausencias.matricula_esocial,
+				ausencias.idafastamento,
+				ausencias.dtinicial,
+				ausencias.dtfinal,
+				ausencias.dsmotivo,
+				ausencias.cid,
+				esp.cdchamada AS idexternosituacao
+			FROM (
+				$finalSql
+			) ausencias
+			INNER JOIN wdp.especial esp ON esp.idespecial = ausencias.idespecial
+		";
+
+		return DB::connection('pgsql')->select($finalSql);
 	}
+
 
 
     /**
