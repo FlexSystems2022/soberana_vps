@@ -22,7 +22,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('ExecutaTudo')->withoutOverlapping();
+        $schedule->command(ExecutaCadastros::class)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command(ExecutaAusencias::class)->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**

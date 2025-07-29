@@ -31,6 +31,7 @@ class ExecutaAusencias extends Command
             function() {
                 $this->call('nexti-sync', ['folder' => 'absence']);
             },
+            Intermediary\Insert\InsertAusencia::class,
             Nexti\ProcessaAusencia::class,
             Nexti\Get\BuscaAusencia::class,
             Intermediary\Merge\MergeAusencia::class,

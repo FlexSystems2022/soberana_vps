@@ -34,21 +34,22 @@ class ExecutaCadastros extends Command
             function() {
                 $this->call('nexti-sync', ['folder' => 'workplace-transfer']);
             },
+            Intermediary\ProcessaIntermediario::class,
             Nexti\ProcessaEmpresa::class,
             Nexti\ProcessaCargo::class,
-            Nexti\ProcessaCliente::class,
-            Nexti\Get\BuscaPosto::class,
-            Intermediary\Merge\MergePosto::class,
-            Nexti\ProcessaPosto::class,
+            // Nexti\ProcessaCliente::class,
+            // Nexti\Get\BuscaPosto::class,
+            // Intermediary\Merge\MergePosto::class,
+            // Nexti\ProcessaPosto::class,
             Nexti\ProcessaSindicato::class,
             Nexti\ProcessaSituacao::class,
             Nexti\ProcessaColaborador::class,
-            Nexti\ProcessaTrocaPosto::class,
-            Nexti\Get\BuscaTrocaPosto::class,
-            Intermediary\Merge\MergeTrocaPosto::class,
-            Nexti\ProcessaTrocaEscala::class,
-            Nexti\Get\BuscaTrocaEscala::class,
-            Intermediary\Merge\MergeTrocaEscala::class,
+            // Nexti\ProcessaTrocaPosto::class,
+            // Nexti\Get\BuscaTrocaPosto::class,
+            // Intermediary\Merge\MergeTrocaPosto::class,
+            // Nexti\ProcessaTrocaEscala::class,
+            // Nexti\Get\BuscaTrocaEscala::class,
+            // Intermediary\Merge\MergeTrocaEscala::class,
 
         ];
 
